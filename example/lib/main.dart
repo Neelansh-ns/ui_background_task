@@ -12,14 +12,13 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
-  final _uiBackgroundTaskPlugin = UiBackgroundTask();
-
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   int? _taskId;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
@@ -27,7 +26,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Plugin example app'),
+          title: const Text('Background Task Example app'),
         ),
         body: Center(
           child: Column(
@@ -35,7 +34,7 @@ class _MyAppState extends State<MyApp> {
             children: [
               ElevatedButton(
                   onPressed: () async {
-                    _taskId = await _uiBackgroundTaskPlugin.beginBackgroundTask();
+                    _taskId = await UiBackgroundTask.instance.beginBackgroundTask();
                     setState(() {});
                   },
                   child: const Text('Begin background task')),
@@ -44,7 +43,12 @@ class _MyAppState extends State<MyApp> {
               ),
               if (_taskId != null)
                 ElevatedButton(
-                  onPressed: () => _uiBackgroundTaskPlugin.endBackgroundTask(_taskId!),
+                  onPressed: () {
+                    UiBackgroundTask.instance.endBackgroundTask(_taskId!);
+                    setState(() {
+                      _taskId = null;
+                    });
+                  },
                   child: Text(
                     'End background task: $_taskId',
                   ),
@@ -54,5 +58,17 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    UiBackgroundTask.instance.appLifeCycleUpdate(state);
   }
 }
