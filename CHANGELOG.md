@@ -1,4 +1,4 @@
-## 0.1.0
+## 0.0.2
 
 * Added UIBackgroundTask class to cancel tasks before 30 seconds.
 

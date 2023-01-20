@@ -33,7 +33,7 @@ class UiBackgroundTask {
     return _getTaskId()
       ..then((taskId) {
         _taskIds.add(taskId);
-        taskStopWatchTimer.onStartTimer();
+        taskStopWatchTimer.onExecute.add(StopWatchExecute.start);
         taskStopWatchTimer.secondTime.listen((event) {
           if (!_taskIds.contains(taskId)) {
             taskStopWatchTimer.dispose();
@@ -56,13 +56,13 @@ class UiBackgroundTask {
     switch (appLifecycleState) {
       case AppLifecycleState.resumed:
         debugPrint('BG_TASK:: App background timer reset');
-        _stopWatchTimer.onResetTimer();
+        _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
         break;
       case AppLifecycleState.inactive:
       case AppLifecycleState.paused:
         if (_taskIds.isNotEmpty) {
-          _stopWatchTimer.onResetTimer();
-          _stopWatchTimer.onStartTimer();
+          _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
+          _stopWatchTimer.onExecute.add(StopWatchExecute.start);
           _subscription?.cancel();
           _subscription = _stopWatchTimer.secondTime.listen((event) {
             if (event == kAppBackgroundTimerDuration.inSeconds) {
