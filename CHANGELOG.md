@@ -1,3 +1,7 @@
+## 0.1.3
+
+* Updated description
+
 ## 0.1.2
 
 * Bumped rxdart and stop_watch_timer
