@@ -28,20 +28,27 @@ class UiBackgroundTask {
   final StopWatchTimer _stopWatchTimer = StopWatchTimer();
   StreamSubscription<int>? _subscription;
 
-  Future<int> beginBackgroundTask() {
+  Future<int> beginBackgroundTask() async {
     StopWatchTimer taskStopWatchTimer = StopWatchTimer();
+
+    ///This is done to check if any task gets started after the [kAppBackgroundTimerDuration], then that would crash the app.
+    ///Hence skipping creating a task after that. 1 second is subtracted to account for precision error.
+    if ((_stopWatchTimer.secondTime.valueWrapper?.value ?? 0) > kAppBackgroundTimerDuration.inSeconds - 1) {
+      debugPrint('BG_TASK:: SKIPPED STARTING BG TASK');
+      return 0;
+    }
+
     return _getTaskId()
       ..then((taskId) {
         _taskIds.add(taskId);
         taskStopWatchTimer.onExecute.add(StopWatchExecute.start);
-        taskStopWatchTimer.secondTime.listen((event) {
+        taskStopWatchTimer.secondTime.listen((event) async {
           if (!_taskIds.contains(taskId)) {
             taskStopWatchTimer.dispose();
           }
           if (event == kTaskCompletionTimerDuration.inSeconds) {
             debugPrint('BG_TASK:: $taskId cancelled at $event seconds');
             endBackgroundTask(taskId);
-            _taskIds.remove(taskId);
             taskStopWatchTimer.dispose();
           }
         });
@@ -49,7 +56,9 @@ class UiBackgroundTask {
   }
 
   Future<void> endBackgroundTask(int taskId) {
-    return UiBackgroundTaskPlatform.instance.endBackgroundTask(taskId);
+    return UiBackgroundTaskPlatform.instance.endBackgroundTask(taskId).then((value) {
+      _taskIds.remove(taskId);
+    });
   }
 
   void appLifeCycleUpdate(AppLifecycleState appLifecycleState) {
@@ -58,7 +67,6 @@ class UiBackgroundTask {
         debugPrint('BG_TASK:: App background timer reset');
         _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
         break;
-      case AppLifecycleState.inactive:
       case AppLifecycleState.paused:
         if (_taskIds.isNotEmpty) {
           _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
@@ -66,17 +74,19 @@ class UiBackgroundTask {
           _subscription?.cancel();
           _subscription = _stopWatchTimer.secondTime.listen((event) {
             if (event == kAppBackgroundTimerDuration.inSeconds) {
-              for (var taskId in _taskIds) {
+              for (var taskId in [..._taskIds]) {
                 endBackgroundTask(taskId);
                 debugPrint('BG_TASK:: $taskId cancelled at $event seconds');
               }
-              _taskIds.clear();
             }
           });
         }
         break;
       case AppLifecycleState.detached:
         _stopWatchTimer.dispose();
+        break;
+      case AppLifecycleState.inactive:
+        //do nothing
         break;
     }
   }

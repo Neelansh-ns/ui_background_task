@@ -1,6 +1,6 @@
 name: ui_background_task
 description: A Flutter iOS plugin to begin/end a ui background task.
-version: 0.0.2
+version: 0.0.3
 homepage: https://github.com/Neelansh-ns/ui_background_task
 repository: https://github.com/Neelansh-ns/ui_background_task
 
@@ -13,6 +13,7 @@ dependencies:
     sdk: flutter
   plugin_platform_interface: ^2.0.2
   stop_watch_timer: ^1.1.0+1
+  rxdart: ^0.26.0
 
 dev_dependencies:
   flutter_test:
