@@ -34,7 +34,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             children: [
               ElevatedButton(
                   onPressed: () async {
-                    _taskId = await UiBackgroundTask.instance.beginBackgroundTask();
+                    _taskId =
+                        await UiBackgroundTask.instance.beginBackgroundTask();
                     setState(() {});
                   },
                   child: const Text('Begin background task')),

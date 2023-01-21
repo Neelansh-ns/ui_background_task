@@ -14,7 +14,7 @@ abstract class UiBackgroundTaskPlatform extends PlatformInterface {
   ///
   /// Defaults to [MethodChannelUiBackgroundTask].
   static UiBackgroundTaskPlatform get instance => _instance;
-  
+
   /// Platform-specific implementations should set this with their own
   /// platform-specific class that extends [UiBackgroundTaskPlatform] when
   /// they register themselves.

@@ -1,3 +1,7 @@
+## 0.1.0
+
+* Bumped rxdart and stop_watch_timer
+
 ## 0.0.3
 
 * Added fix for background task being created after kAppBackgroundTimerDuration.

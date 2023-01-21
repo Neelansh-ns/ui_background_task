@@ -11,7 +11,8 @@ class MethodChannelUiBackgroundTask extends UiBackgroundTaskPlatform {
 
   @override
   Future<String?> getPlatformVersion() async {
-    final version = await methodChannel.invokeMethod<String>('getPlatformVersion');
+    final version =
+        await methodChannel.invokeMethod<String>('getPlatformVersion');
     return version;
   }
 
@@ -23,8 +24,7 @@ class MethodChannelUiBackgroundTask extends UiBackgroundTaskPlatform {
 
   @override
   Future<void> endBackgroundTask(int taskId) {
-    return methodChannel.invokeMethod<void>('endBackgroundTask', {
-      'taskId': taskId
-    });
+    return methodChannel
+        .invokeMethod<void>('endBackgroundTask', {'taskId': taskId});
   }
 }

@@ -33,7 +33,8 @@ class UiBackgroundTask {
 
     ///This is done to check if any task gets started after the [kAppBackgroundTimerDuration], then that would crash the app.
     ///Hence skipping creating a task after that. 1 second is subtracted to account for precision error.
-    if ((_stopWatchTimer.secondTime.valueWrapper?.value ?? 0) > kAppBackgroundTimerDuration.inSeconds - 1) {
+    if ((_stopWatchTimer.secondTime.valueOrNull ?? 0) >
+        kAppBackgroundTimerDuration.inSeconds - 1) {
       debugPrint('BG_TASK:: SKIPPED STARTING BG TASK');
       return 0;
     }
@@ -41,7 +42,7 @@ class UiBackgroundTask {
     return _getTaskId()
       ..then((taskId) {
         _taskIds.add(taskId);
-        taskStopWatchTimer.onExecute.add(StopWatchExecute.start);
+        taskStopWatchTimer.onStartTimer();
         taskStopWatchTimer.secondTime.listen((event) async {
           if (!_taskIds.contains(taskId)) {
             taskStopWatchTimer.dispose();
@@ -56,7 +57,9 @@ class UiBackgroundTask {
   }
 
   Future<void> endBackgroundTask(int taskId) {
-    return UiBackgroundTaskPlatform.instance.endBackgroundTask(taskId).then((value) {
+    return UiBackgroundTaskPlatform.instance
+        .endBackgroundTask(taskId)
+        .then((value) {
       _taskIds.remove(taskId);
     });
   }
@@ -65,12 +68,12 @@ class UiBackgroundTask {
     switch (appLifecycleState) {
       case AppLifecycleState.resumed:
         debugPrint('BG_TASK:: App background timer reset');
-        _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
+        _stopWatchTimer.onResetTimer();
         break;
       case AppLifecycleState.paused:
         if (_taskIds.isNotEmpty) {
-          _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
-          _stopWatchTimer.onExecute.add(StopWatchExecute.start);
+          _stopWatchTimer.onResetTimer();
+          _stopWatchTimer.onStartTimer();
           _subscription?.cancel();
           _subscription = _stopWatchTimer.secondTime.listen((event) {
             if (event == kAppBackgroundTimerDuration.inSeconds) {
@@ -92,7 +95,9 @@ class UiBackgroundTask {
   }
 
   Future<int> _getTaskId() async {
-    return await UiBackgroundTaskPlatform.instance.beginBackgroundTask().then((value) {
+    return await UiBackgroundTaskPlatform.instance
+        .beginBackgroundTask()
+        .then((value) {
       if (value == null) {
         return Future.error(Exception('Something went wrong!'));
       }
