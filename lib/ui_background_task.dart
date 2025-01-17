@@ -1,3 +1,3 @@
-library ui_background_task;
+library;
 
 export 'src/ui_background_task.dart';

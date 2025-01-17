@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ui_background_task/ui_background_task_method_channel.dart';
+import 'package:ui_background_task/src/ui_background_task_method_channel.dart';
 
 void main() {
   MethodChannelUiBackgroundTask platform = MethodChannelUiBackgroundTask();
@@ -9,13 +9,19 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
-    channel.setMockMethodCallHandler((MethodCall methodCall) async {
-      return '42';
-    });
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      channel,
+      (MethodCall methodCall) async => '42',
+    );
   });
 
   tearDown(() {
-    channel.setMockMethodCallHandler(null);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      channel,
+      null,
+    );
   });
 
   test('getPlatformVersion', () async {

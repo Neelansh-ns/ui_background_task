@@ -26,11 +26,10 @@ class UiBackgroundTask {
   final List<int> _taskIds = [];
 
   final StopWatchTimer _stopWatchTimer = StopWatchTimer();
+
   StreamSubscription<int>? _subscription;
 
   Future<int> beginBackgroundTask() async {
-    StopWatchTimer taskStopWatchTimer = StopWatchTimer();
-
     ///This is done to check if any task gets started after the [kAppBackgroundTimerDuration], then that would crash the app.
     ///Hence skipping creating a task after that. 1 second is subtracted to account for precision error.
     if ((_stopWatchTimer.secondTime.valueOrNull ?? 0) >
@@ -39,29 +38,28 @@ class UiBackgroundTask {
       return 0;
     }
 
-    return _getTaskId()
-      ..then((taskId) {
-        _taskIds.add(taskId);
-        taskStopWatchTimer.onStartTimer();
-        taskStopWatchTimer.secondTime.listen((event) async {
-          if (!_taskIds.contains(taskId)) {
-            taskStopWatchTimer.dispose();
-          }
-          if (event == kTaskCompletionTimerDuration.inSeconds) {
-            debugPrint('BG_TASK:: $taskId cancelled at $event seconds');
-            endBackgroundTask(taskId);
-            taskStopWatchTimer.dispose();
-          }
-        });
-      });
+    final taskId = await _getTaskId();
+    _taskIds.add(taskId);
+
+    StopWatchTimer taskStopWatchTimer = StopWatchTimer();
+    taskStopWatchTimer.onStartTimer();
+    taskStopWatchTimer.secondTime.listen((event) async {
+      if (event == kTaskCompletionTimerDuration.inSeconds ||
+          !_taskIds.contains(taskId)) {
+        taskStopWatchTimer.dispose();
+      }
+      if (event == kTaskCompletionTimerDuration.inSeconds) {
+        debugPrint('BG_TASK:: $taskId cancelled at $event seconds');
+        endBackgroundTask(taskId);
+      }
+    });
+
+    return taskId;
   }
 
-  Future<void> endBackgroundTask(int taskId) {
-    return UiBackgroundTaskPlatform.instance
-        .endBackgroundTask(taskId)
-        .then((value) {
-      _taskIds.remove(taskId);
-    });
+  Future<void> endBackgroundTask(int taskId) async {
+    await UiBackgroundTaskPlatform.instance.endBackgroundTask(taskId);
+    _taskIds.remove(taskId);
   }
 
   void appLifeCycleUpdate(AppLifecycleState appLifecycleState) {
@@ -88,6 +86,7 @@ class UiBackgroundTask {
       case AppLifecycleState.detached:
         _stopWatchTimer.dispose();
         break;
+      case AppLifecycleState.hidden:
       case AppLifecycleState.inactive:
         //do nothing
         break;
@@ -95,17 +94,15 @@ class UiBackgroundTask {
   }
 
   Future<int> _getTaskId() async {
-    return await UiBackgroundTaskPlatform.instance
-        .beginBackgroundTask()
-        .then((value) {
-      if (value == null) {
-        return Future.error(Exception('Something went wrong!'));
-      }
-      return value;
-    });
+    final taskId =
+        await UiBackgroundTaskPlatform.instance.beginBackgroundTask();
+    if (taskId == null) {
+      throw Exception('Cannot begin BackgroundTask');
+    }
+    return taskId;
   }
 
-  dispose() {
+  void dispose() {
     _stopWatchTimer.dispose();
     _taskIds.clear();
   }

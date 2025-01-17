@@ -1,12 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ui_background_task/ui_background_task.dart';
-import 'package:ui_background_task/ui_background_task_platform_interface.dart';
-import 'package:ui_background_task/ui_background_task_method_channel.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:ui_background_task/src/ui_background_task_method_channel.dart';
+import 'package:ui_background_task/src/ui_background_task_platform_interface.dart';
 
-class MockUiBackgroundTaskPlatform
-    with MockPlatformInterfaceMixin
-    implements UiBackgroundTaskPlatform {
+class MockUiBackgroundTaskPlatform extends UiBackgroundTaskPlatform
+    with MockPlatformInterfaceMixin {
   @override
   Future<String?> getPlatformVersion() => Future.value('42');
 }
@@ -20,10 +18,7 @@ void main() {
   });
 
   test('getPlatformVersion', () async {
-    UiBackgroundTask uiBackgroundTaskPlugin = UiBackgroundTask();
     MockUiBackgroundTaskPlatform fakePlatform = MockUiBackgroundTaskPlatform();
-    UiBackgroundTaskPlatform.instance = fakePlatform;
-
-    expect(await uiBackgroundTaskPlugin.getPlatformVersion(), '42');
+    expect(await fakePlatform.getPlatformVersion(), '42');
   });
 }
