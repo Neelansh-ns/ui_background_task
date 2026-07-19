@@ -44,4 +44,5 @@ public class UiBackgroundTaskPlugin: NSObject, FlutterPlugin {
 }
 
 @available(*, deprecated, renamed: "UiBackgroundTaskPlugin")
-public typealias SwiftUiBackgroundTaskPlugin = UiBackgroundTaskPlugin
+@objc(SwiftUiBackgroundTaskPlugin)
+public class SwiftUiBackgroundTaskPlugin: UiBackgroundTaskPlugin {}

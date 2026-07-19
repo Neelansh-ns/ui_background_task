@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "ui_background_task",
     platforms: [
-        .iOS("9.0")
+        .iOS("13.0")
     ],
     products: [
         .library(name: "ui-background-task", targets: ["ui_background_task"])
