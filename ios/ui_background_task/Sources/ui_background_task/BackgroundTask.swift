@@ -1,4 +1,4 @@
-import Foundation
+import UIKit
 
 class BackgroundTask {
     private let application: UIApplication
@@ -8,9 +8,8 @@ class BackgroundTask {
         self.application = application
     }
 
-    class func run(application: UIApplication, handler: (BackgroundTask) -> ()) {
-        // NOTE: The handler must call end() when it is done
-
+    class func run(application: UIApplication, handler: (BackgroundTask) -> Void) {
+        // NOTE: The handler must call end() when it is done.
         let backgroundTask = BackgroundTask(application: application)
         backgroundTask.begin()
         handler(backgroundTask)
@@ -18,7 +17,7 @@ class BackgroundTask {
 
     func begin() {
         NSLog("Begin background task:)")
-        self.identifier = application.beginBackgroundTask {
+        identifier = application.beginBackgroundTask {
             NSLog("Background task ended expirationhandler")
             self.end()
         }
@@ -26,7 +25,7 @@ class BackgroundTask {
     }
 
     func end() {
-        if (identifier != UIBackgroundTaskIdentifier.invalid) {
+        if identifier != UIBackgroundTaskIdentifier.invalid {
             application.endBackgroundTask(identifier)
         }
 
