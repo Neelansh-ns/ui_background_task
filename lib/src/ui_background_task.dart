@@ -6,18 +6,27 @@ import 'package:stop_watch_timer/stop_watch_timer.dart';
 
 import 'ui_background_task_platform_interface.dart';
 
+/// Manages finite-length iOS background task assertions.
+///
+/// Call [beginBackgroundTask] immediately before starting work that should be
+/// allowed to finish after the app enters the background. Always pair a
+/// successful call with [endBackgroundTask].
 class UiBackgroundTask {
-  ///Duration after which all the tasks will be ended when the app is in background.
-  ///Keeping it a bit less than 30 seconds, i.e. the time app gets when in background.
+  /// Duration after which all tasks are ended while the app is in the
+  /// background.
+  ///
+  /// This is intentionally shorter than the time normally granted by iOS.
   static const kAppBackgroundTimerDuration = Duration(seconds: 28);
 
-  ///Duration for which each task is going to run at max.
-  ///Keeping it a bit less than 30 seconds, i.e. the time before which the background tasks should end.
-  ///The expiration handler of the task is only called when teh app is in background for more than 30 seconds
+  /// Maximum duration for an individual task managed by this plugin.
+  ///
+  /// This safety timer ends the task before the iOS expiration handler would
+  /// normally be invoked.
   static const kTaskCompletionTimerDuration = Duration(seconds: 29);
 
   static final UiBackgroundTask _instance = UiBackgroundTask._();
 
+  /// The shared background task manager.
   static UiBackgroundTask get instance => _instance;
 
   UiBackgroundTask._();
@@ -29,9 +38,14 @@ class UiBackgroundTask {
 
   StreamSubscription<int>? _subscription;
 
+  /// Begins an iOS background task and returns its identifier.
+  ///
+  /// Returns `0` without creating a task if the app has already spent almost
+  /// all of its managed time in the background.
   Future<int> beginBackgroundTask() async {
-    ///This is done to check if any task gets started after the [kAppBackgroundTimerDuration], then that would crash the app.
-    ///Hence skipping creating a task after that. 1 second is subtracted to account for precision error.
+    // Avoid starting a task after [kAppBackgroundTimerDuration], which could
+    // cause iOS to terminate the app. One second is subtracted to account for
+    // timer precision.
     if ((_stopWatchTimer.secondTime.valueOrNull ?? 0) >
         kAppBackgroundTimerDuration.inSeconds - 1) {
       debugPrint('BG_TASK:: SKIPPED STARTING BG TASK');
@@ -57,11 +71,16 @@ class UiBackgroundTask {
     return taskId;
   }
 
+  /// Ends the background task identified by [taskId].
   Future<void> endBackgroundTask(int taskId) async {
     await UiBackgroundTaskPlatform.instance.endBackgroundTask(taskId);
     _taskIds.remove(taskId);
   }
 
+  /// Updates the task timers for an app lifecycle transition.
+  ///
+  /// Forward every [WidgetsBindingObserver.didChangeAppLifecycleState] event
+  /// here so managed tasks are reset or ended at the appropriate time.
   void appLifeCycleUpdate(AppLifecycleState appLifecycleState) {
     switch (appLifecycleState) {
       case AppLifecycleState.resumed:
@@ -102,6 +121,9 @@ class UiBackgroundTask {
     return taskId;
   }
 
+  /// Releases timers and clears locally tracked task identifiers.
+  ///
+  /// Call this only when the shared manager will no longer be used.
   void dispose() {
     _stopWatchTimer.dispose();
     _taskIds.clear();

@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'ui_background_task'
-  s.version          = '0.2.0'
+  s.version          = '0.3.0'
   s.summary          = 'A Flutter iOS plugin for managing UI background tasks.'
   s.description      = <<-DESC
 A Flutter iOS plugin that begins and ends UI background tasks so work can finish

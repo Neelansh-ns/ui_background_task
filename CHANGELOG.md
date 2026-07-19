@@ -1,3 +1,16 @@
+## 0.3.0 - 2026-07-20
+
+### Added
+
+* Added Swift Package Manager support for iOS while retaining CocoaPods compatibility.
+* Moved the shared Swift implementation into the package-compatible `Sources` layout.
+* Preserved compatibility with the legacy `SwiftUiBackgroundTaskPlugin` class name.
+* Expanded the README, example documentation, and public API documentation.
+
+### Changed
+
+* **Breaking:** Raised the minimum supported versions to Flutter 3.44 and iOS 13.
+
 ## 0.2.0
 
 * Fix error when `taskStopWatchTimer` attempted to be disposed twice

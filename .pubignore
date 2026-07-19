@@ -1,0 +1,27 @@
+# Local SDK and editor configuration
+/.fvm/
+/.fvmrc
+/.idea/
+/.vscode/
+*.iml
+
+# Generated Dart and Flutter output
+/.dart_tool/
+/.packages
+/build/
+/doc/api/
+/pubspec.lock
+/example/.dart_tool/
+/example/build/
+/example/pubspec.lock
+
+# Generated iOS dependency output
+/.swiftpm/
+/example/ios/.symlinks/
+/example/ios/Flutter/ephemeral/
+/example/ios/Pods/
+/example/ios/Podfile.lock
+
+# Repository maintenance files
+/.github/
+/PUBLISHING.md
