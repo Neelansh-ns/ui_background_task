@@ -13,7 +13,7 @@ A new Flutter project.
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'Your Company' => 'email@example.com' }
   s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*'
+  s.source_files = 'ui_background_task/Sources/ui_background_task/**/*.swift'
   s.dependency 'Flutter'
   s.platform = :ios, '9.0'
 
