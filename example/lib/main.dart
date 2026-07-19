@@ -6,7 +6,7 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -33,19 +33,22 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             mainAxisSize: MainAxisSize.min,
             children: [
               ElevatedButton(
-                  onPressed: () async {
-                    _taskId =
-                        await UiBackgroundTask.instance.beginBackgroundTask();
-                    setState(() {});
-                  },
-                  child: const Text('Begin background task')),
-              const SizedBox(
-                width: 24,
+                onPressed: () async {
+                  final taskId =
+                      await UiBackgroundTask.instance.beginBackgroundTask();
+                  if (!mounted) return;
+                  setState(() {
+                    _taskId = taskId == 0 ? null : taskId;
+                  });
+                },
+                child: const Text('Begin background task'),
               ),
+              const SizedBox(height: 24),
               if (_taskId != null)
                 ElevatedButton(
-                  onPressed: () {
-                    UiBackgroundTask.instance.endBackgroundTask(_taskId!);
+                  onPressed: () async {
+                    await UiBackgroundTask.instance.endBackgroundTask(_taskId!);
+                    if (!mounted) return;
                     setState(() {
                       _taskId = null;
                     });
@@ -63,8 +66,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    super.dispose();
     WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   @override

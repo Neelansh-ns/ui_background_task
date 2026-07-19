@@ -1,16 +1,17 @@
-# ui_background_task_example
+# ui_background_task example
 
-Demonstrates how to use the ui_background_task plugin.
+This iOS example demonstrates the complete plugin lifecycle:
 
-## Getting Started
+1. Tap **Begin background task**.
+2. Move the app to the background while the task is active.
+3. Return to the app and tap **End background task**.
 
-This project is a starting point for a Flutter application.
+Run it on an iOS device or simulator:
 
-A few resources to get you started if this is your first Flutter project:
+```console
+flutter run
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+The example forwards every Flutter application lifecycle change to
+`UiBackgroundTask.instance.appLifeCycleUpdate`, which is required for the
+plugin's safety timers.
